@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TODOアプリ</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="TODOメニュー">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">✓</span>
+          <span>TODOアプリ</span>
+        </div>
+
+        <nav class="side-nav" aria-label="状態別メニュー">
+          <button class="nav-item active" type="button" data-scope="all">
+            <span class="nav-icon" aria-hidden="true">▣</span>
+            <span>すべてのTODO</span>
+            <strong data-count="all">0</strong>
+          </button>
+          <button class="nav-item" type="button" data-scope="today">
+            <span class="nav-icon" aria-hidden="true">◷</span>
+            <span>今日</span>
+            <strong data-count="today">0</strong>
+          </button>
+          <button class="nav-item" type="button" data-scope="week">
+            <span class="nav-icon" aria-hidden="true">▤</span>
+            <span>今週</span>
+            <strong data-count="week">0</strong>
+          </button>
+          <button class="nav-item" type="button" data-scope="completed">
+            <span class="nav-icon" aria-hidden="true">✓</span>
+            <span>完了済み</span>
+            <strong data-count="completed">0</strong>
+          </button>
+          <button class="nav-item" type="button" data-scope="archived">
+            <span class="nav-icon" aria-hidden="true">□</span>
+            <span>アーカイブ</span>
+            <strong data-count="archived">0</strong>
+          </button>
+        </nav>
+
+        <section class="side-section" aria-label="優先順位">
+          <h2>優先順位</h2>
+          <button class="metric-row" type="button" data-priority-shortcut="high">
+            <span class="dot dot-high" aria-hidden="true"></span>
+            <span>高</span>
+            <strong data-count="priority-high">0</strong>
+          </button>
+          <button class="metric-row" type="button" data-priority-shortcut="medium">
+            <span class="dot dot-medium" aria-hidden="true"></span>
+            <span>中</span>
+            <strong data-count="priority-medium">0</strong>
+          </button>
+          <button class="metric-row" type="button" data-priority-shortcut="low">
+            <span class="dot dot-low" aria-hidden="true"></span>
+            <span>低</span>
+            <strong data-count="priority-low">0</strong>
+          </button>
+        </section>
+
+        <section class="side-section" aria-label="ラベル">
+          <h2>ラベル</h2>
+          <div class="label-list" id="labelList"></div>
+          <button class="add-label-button" type="button" id="addLabelButton">
+            <span class="nav-icon" aria-hidden="true">＋</span>
+            <span>ラベル追加</span>
+          </button>
+        </section>
+
+        <div class="export-actions" aria-label="データ出力">
+          <button class="settings-button" type="button" id="exportJsonButton">
+            <span class="nav-icon" aria-hidden="true">⇩</span>
+            <span>JSON出力</span>
+          </button>
+          <button class="settings-button" type="button" id="exportCsvButton">
+            <span class="nav-icon" aria-hidden="true">⇩</span>
+            <span>CSV出力</span>
+          </button>
+          <button class="settings-button" type="button" id="importJsonButton">
+            <span class="nav-icon" aria-hidden="true">⇧</span>
+            <span>JSON取込</span>
+          </button>
+          <input id="importJsonInput" type="file" accept="application/json,.json" hidden>
+        </div>
+      </aside>
+
+      <main class="main-panel">
+        <header class="topbar">
+          <button class="sidebar-toggle" type="button" id="sidebarToggle" aria-label="メニューを開閉">‹</button>
+          <h1>TODOアプリ</h1>
+          <button class="icon-button" type="button" id="resetSeedButton" title="サンプルデータを復元" aria-label="サンプルデータを復元">↻</button>
+        </header>
+
+        <section class="summary-bar" aria-label="TODOサマリー">
+          <div class="summary-total">
+            <span class="summary-icon" aria-hidden="true">▣</span>
+            <span>合計</span>
+            <strong data-summary="total">0</strong>
+            <span>件</span>
+          </div>
+          <div class="summary-metric"><span class="dot dot-high"></span><strong data-summary="high">0</strong><span>高優先度</span></div>
+          <div class="summary-metric"><span class="dot dot-medium"></span><strong data-summary="medium">0</strong><span>中優先度</span></div>
+          <div class="summary-metric"><span class="dot dot-low"></span><strong data-summary="low">0</strong><span>低優先度</span></div>
+          <div class="summary-metric"><span class="dot dot-due"></span><strong data-summary="today">0</strong><span>今日の期限</span></div>
+        </section>
+
+        <section class="toolbar" aria-label="TODO操作">
+          <label class="search-box">
+            <span aria-hidden="true">⌕</span>
+            <input id="searchInput" type="search" placeholder="TODOを検索..." autocomplete="off">
+          </label>
+
+          <label class="select-box">
+            <span aria-hidden="true">▽</span>
+            <select id="priorityFilter" aria-label="優先順位でフィルター">
+              <option value="all">フィルターなし</option>
+              <option value="high">高優先度</option>
+              <option value="medium">中優先度</option>
+              <option value="low">低優先度</option>
+            </select>
+          </label>
+
+          <div class="filter-row">
+            <div class="segment-control" role="group" aria-label="期限フィルター">
+              <button class="segment active" type="button" data-scope-shortcut="all">すべて</button>
+              <button class="segment" type="button" data-scope-shortcut="today">今日</button>
+              <button class="segment" type="button" data-scope-shortcut="week">今週</button>
+              <button class="segment" type="button" data-scope-shortcut="overdue">期限切れ</button>
+            </div>
+
+            <button class="primary-button" type="button" id="addTaskButton">
+              <span aria-hidden="true">＋</span>
+              <span>新規追加</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="table-wrap" aria-live="polite">
+          <table>
+            <thead>
+              <tr>
+                <th class="check-cell"><input id="toggleVisibleTasks" type="checkbox" aria-label="表示中のTODOを一括完了"></th>
+                <th>TODO内容</th>
+                <th>優先順位</th>
+                <th><button class="sort-button" type="button" id="sortDueButton">期限 <span aria-hidden="true">↕</span></button></th>
+                <th>ラベル</th>
+                <th>備考</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="taskTableBody"></tbody>
+          </table>
+          <div class="empty-state" id="emptyState" hidden>
+            <strong>表示できるTODOがありません</strong>
+            <span>検索条件やフィルターを調整してください。</span>
+          </div>
+        </section>
+
+        <footer class="pager">
+          <span id="resultCount">0 / 0 件を表示</span>
+          <div class="page-size">
+            <label for="pageSizeSelect">表示件数</label>
+            <select id="pageSizeSelect">
+              <option value="10">10件</option>
+              <option value="20">20件</option>
+              <option value="50">50件</option>
+            </select>
+          </div>
+        </footer>
+      </main>
+    </div>
+
+    <dialog class="task-dialog" id="taskDialog">
+      <form method="dialog" id="taskForm">
+        <header>
+          <h2 id="dialogTitle">TODOを追加</h2>
+          <button class="icon-button" type="button" id="closeDialogButton" aria-label="閉じる">×</button>
+        </header>
+
+        <input type="hidden" id="taskId">
+        <label>
+          <span>TODO内容</span>
+          <input id="taskTitle" type="text" maxlength="80" required>
+        </label>
+
+        <div class="form-grid">
+          <label>
+            <span>優先順位</span>
+            <select id="taskPriority" required>
+              <option value="high">高</option>
+              <option value="medium">中</option>
+              <option value="low">低</option>
+            </select>
+          </label>
+          <label>
+            <span>期限</span>
+            <input id="taskDueDate" type="date">
+          </label>
+        </div>
+
+        <div class="form-grid">
+          <label>
+            <span>ラベル</span>
+            <select id="taskLabel" required>
+              <option value="仕事">仕事</option>
+              <option value="プロジェクト">プロジェクト</option>
+              <option value="個人">個人</option>
+            </select>
+            <button class="inline-add-button" type="button" id="addLabelFromDialogButton">ラベル追加</button>
+          </label>
+          <label class="checkbox-field">
+            <input id="taskArchived" type="checkbox">
+            <span>アーカイブする</span>
+          </label>
+        </div>
+
+        <label>
+          <span>備考</span>
+          <textarea id="taskNote" maxlength="140" rows="3"></textarea>
+        </label>
+
+        <menu>
+          <button class="secondary-button" type="button" id="cancelDialogButton">キャンセル</button>
+          <button class="primary-button" type="submit">保存</button>
+        </menu>
+      </form>
+    </dialog>
+
+    <dialog class="task-dialog label-dialog" id="labelDialog">
+      <form method="dialog" id="labelForm">
+        <header>
+          <h2>ラベルを追加</h2>
+          <button class="icon-button" type="button" id="closeLabelDialogButton" aria-label="閉じる">×</button>
+        </header>
+
+        <label>
+          <span>ラベル名</span>
+          <input id="labelNameInput" type="text" maxlength="24" required>
+        </label>
+
+        <menu>
+          <button class="secondary-button" type="button" id="cancelLabelDialogButton">キャンセル</button>
+          <button class="primary-button" type="submit">追加</button>
+        </menu>
+      </form>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+    <div class="context-menu" id="labelContextMenu" role="menu" hidden>
+      <button type="button" id="deleteLabelMenuItem" role="menuitem">ラベルを削除</button>
+    </div>
+
+    <template id="taskRowTemplate">
+      <tr>
+        <td class="check-cell"><input class="task-complete" type="checkbox"></td>
+        <td class="title-cell"></td>
+        <td class="priority-cell"></td>
+        <td class="due-cell"></td>
+        <td class="label-cell"></td>
+        <td class="note-cell"></td>
+        <td class="action-cell">
+          <button class="row-button edit-task" type="button">編集</button>
+          <button class="row-button archive-task" type="button">保管</button>
+          <button class="row-button danger delete-task" type="button">削除</button>
+        </td>
+      </tr>
+    </template>
+
+    <script src="./js/model.js"></script>
+    <script src="./js/storage.js"></script>
+    <script src="./js/view.js"></script>
+    <script src="./js/app.js"></script>
+  </body>
+</html>
