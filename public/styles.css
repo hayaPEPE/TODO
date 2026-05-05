@@ -472,6 +472,10 @@ tbody tr:hover {
   font-weight: inherit;
 }
 
+.sort-button.active {
+  color: var(--blue);
+}
+
 .empty-state {
   display: grid;
   place-items: center;

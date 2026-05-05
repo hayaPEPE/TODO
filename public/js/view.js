@@ -54,6 +54,7 @@ function collectElements() {
     addTaskButton: document.querySelector("#addTaskButton"),
     closeDialogButton: document.querySelector("#closeDialogButton"),
     cancelDialogButton: document.querySelector("#cancelDialogButton"),
+    sortPriorityButton: document.querySelector("#sortPriorityButton"),
     sortDueButton: document.querySelector("#sortDueButton"),
     toggleVisibleTasks: document.querySelector("#toggleVisibleTasks"),
     sidebarToggle: document.querySelector("#sidebarToggle"),
@@ -94,6 +95,19 @@ function getVisibleTasks(state, today = todayString()) {
     });
 
   return filtered.sort((a, b) => {
+    if (state.sortBy === "priority") {
+      const direction = state.sortPriority === "asc" ? 1 : -1;
+      return (
+        (priorityMap[a.priority].rank - priorityMap[b.priority].rank) * direction ||
+        compareDueDate(a, b, "asc")
+      );
+    }
+
+    return compareDueDate(a, b, state.sortDue);
+  });
+}
+
+function compareDueDate(a, b, direction) {
     if (!a.dueDate && !b.dueDate) {
       return priorityMap[a.priority].rank - priorityMap[b.priority].rank;
     }
@@ -101,12 +115,11 @@ function getVisibleTasks(state, today = todayString()) {
     if (!a.dueDate) return 1;
     if (!b.dueDate) return -1;
 
-    if (state.sortDue === "asc") {
+    if (direction === "asc") {
       return a.dueDate.localeCompare(b.dueDate) || priorityMap[a.priority].rank - priorityMap[b.priority].rank;
     }
 
     return b.dueDate.localeCompare(a.dueDate) || priorityMap[a.priority].rank - priorityMap[b.priority].rank;
-  });
 }
 
 function openTaskDialog(elements, labels, task = null) {
@@ -369,6 +382,10 @@ function renderActiveControls(state, elements) {
   elements.priorityFilter.value = state.priority;
   elements.pageSizeSelect.value = String(state.pageSize);
   elements.searchInput.value = state.search;
+  elements.sortDueButton.classList.toggle("active", state.sortBy === "due");
+  elements.sortPriorityButton.classList.toggle("active", state.sortBy === "priority");
+  elements.sortDueButton.querySelector("span").textContent = state.sortDue === "asc" ? "↑" : "↓";
+  elements.sortPriorityButton.querySelector("span").textContent = state.sortPriority === "asc" ? "↑" : "↓";
 }
 
 window.TodoView = {

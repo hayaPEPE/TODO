@@ -33,7 +33,9 @@ const state = {
   priority: savedUiState.priority,
   label: savedUiState.label,
   search: savedUiState.search,
+  sortBy: savedUiState.sortBy,
   sortDue: savedUiState.sortDue,
+  sortPriority: savedUiState.sortPriority,
   pageSize: savedUiState.pageSize,
   labels: loadLabels()
 };
@@ -55,7 +57,9 @@ function commitUiState(patch) {
     priority: state.priority,
     label: state.label,
     search: state.search,
+    sortBy: state.sortBy,
     sortDue: state.sortDue,
+    sortPriority: state.sortPriority,
     pageSize: state.pageSize
   });
   render(state, elements);
@@ -105,7 +109,9 @@ function deleteLabel(labelName) {
       priority: state.priority,
       label: state.label,
       search: state.search,
+      sortBy: state.sortBy,
       sortDue: state.sortDue,
+      sortPriority: state.sortPriority,
       pageSize: state.pageSize
     });
   }
@@ -204,7 +210,11 @@ elements.pageSizeSelect.addEventListener("change", (event) => {
 });
 
 elements.sortDueButton.addEventListener("click", () => {
-  commitUiState({ sortDue: state.sortDue === "asc" ? "desc" : "asc" });
+  commitUiState({ sortBy: "due", sortDue: state.sortDue === "asc" ? "desc" : "asc" });
+});
+
+elements.sortPriorityButton.addEventListener("click", () => {
+  commitUiState({ sortBy: "priority", sortPriority: state.sortPriority === "asc" ? "desc" : "asc" });
 });
 
 elements.toggleVisibleTasks.addEventListener("change", (event) => {

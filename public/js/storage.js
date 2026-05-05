@@ -6,7 +6,9 @@ const defaultUiState = {
   priority: "all",
   label: "all",
   search: "",
+  sortBy: "due",
   sortDue: "asc",
+  sortPriority: "asc",
   pageSize: 10
 };
 
@@ -81,6 +83,8 @@ function resetLabels() {
 function normalizeUiState(uiState) {
   const pageSize = [10, 20, 50].includes(Number(uiState?.pageSize)) ? Number(uiState.pageSize) : defaultUiState.pageSize;
   const sortDue = uiState?.sortDue === "desc" ? "desc" : "asc";
+  const sortPriority = uiState?.sortPriority === "desc" ? "desc" : "asc";
+  const sortBy = uiState?.sortBy === "priority" ? "priority" : "due";
 
   return {
     scope: ["all", "today", "week", "overdue", "completed", "archived"].includes(uiState?.scope)
@@ -91,7 +95,9 @@ function normalizeUiState(uiState) {
       : defaultUiState.priority,
     label: typeof uiState?.label === "string" ? uiState.label : defaultUiState.label,
     search: typeof uiState?.search === "string" ? uiState.search : defaultUiState.search,
+    sortBy,
     sortDue,
+    sortPriority,
     pageSize
   };
 }
